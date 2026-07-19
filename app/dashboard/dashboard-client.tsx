@@ -32,6 +32,53 @@ import {
   getGuestsAction
 } from "@/app/actions/dashboard";
 
+// CSS overrides creator for dynamic accent coloring
+const getAccentCssOverrides = (accent: string) => {
+  let hex = "#f59e0b"; // amber-500
+  let hoverHex = "#d97706"; // amber-600
+  let lightHex = "rgba(245, 158, 11, 0.1)";
+  let borderHex = "rgba(245, 158, 11, 0.25)";
+
+  if (accent === "emerald") {
+    hex = "#10b981";
+    hoverHex = "#059669";
+    lightHex = "rgba(16, 185, 129, 0.1)";
+    borderHex = "rgba(16, 185, 129, 0.25)";
+  } else if (accent === "indigo") {
+    hex = "#6366f1";
+    hoverHex = "#4f46e5";
+    lightHex = "rgba(99, 102, 241, 0.1)";
+    borderHex = "rgba(99, 102, 241, 0.25)";
+  } else if (accent === "rose") {
+    hex = "#f43f5e";
+    hoverHex = "#e11d48";
+    lightHex = "rgba(244, 63, 94, 0.1)";
+    borderHex = "rgba(244, 63, 94, 0.25)";
+  } else if (accent === "slate") {
+    hex = "#64748b";
+    hoverHex = "#475569";
+    lightHex = "rgba(100, 116, 139, 0.1)";
+    borderHex = "rgba(100, 116, 139, 0.25)";
+  }
+
+  return `
+    /* Accent color overrides dynamically generated */
+    .text-amber-500, .text-amber-400 { color: ${hex} !important; }
+    .bg-amber-500, .bg-amber-600 { background-color: ${hex} !important; }
+    .hover\\:bg-amber-600:hover { background-color: ${hoverHex} !important; }
+    .border-amber-500 { border-color: ${hex} !important; }
+    .bg-amber-500\\/10 { background-color: ${lightHex} !important; }
+    .border-amber-500\\/20, .border-amber-500\\/25, .border-amber-500\\/30 { border-color: ${borderHex} !important; }
+    .text-amber-600 { color: ${hoverHex} !important; }
+    .focus\\:border-amber-500:focus { border-color: ${hex} !important; }
+    .text-amber-500\\/10 { color: ${lightHex} !important; }
+    input[type="checkbox"]:checked {
+      background-color: ${hex} !important;
+      border-color: ${hex} !important;
+    }
+  `;
+};
+
 interface DashboardProps {
   initialEvents: EventData[];
   initialGuests: GuestData[];
@@ -71,6 +118,7 @@ export function DashboardClient({ initialEvents, initialGuests, activeTab: serve
   const [activeTab, setActiveTab] = useState(serverTab || "overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [accentColor, setAccentColor] = useState<string>("amber");
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
@@ -96,6 +144,10 @@ export function DashboardClient({ initialEvents, initialGuests, activeTab: serve
       setTheme(savedTheme);
     } else {
       setTheme("dark");
+    }
+    const savedAccent = localStorage.getItem("kinvite-accent");
+    if (savedAccent) {
+      setAccentColor(savedAccent);
     }
     setMounted(true);
   }, []);
@@ -419,6 +471,7 @@ export function DashboardClient({ initialEvents, initialGuests, activeTab: serve
 
   return (
     <div className={`min-h-screen flex ${pageBg} font-sans relative w-full overflow-hidden transition-colors duration-500`}>
+      <style dangerouslySetInnerHTML={{__html: getAccentCssOverrides(accentColor)}} />
       <Toaster position="top-right" richColors />
 
       {/* MOBILE SIDEBAR DRAWER BACKDROP */}
@@ -595,6 +648,12 @@ export function DashboardClient({ initialEvents, initialGuests, activeTab: serve
           {activeTab === "settings" && (
             <SettingsTab
               theme={theme}
+              setTheme={(nextTheme) => {
+                setTheme(nextTheme);
+                localStorage.setItem("kinvite-theme", nextTheme);
+              }}
+              accentColor={accentColor}
+              setAccentColor={setAccentColor}
               currentUser={currentUser}
               onUpdateSettings={handleUpdateSettings}
               isUpdatingSettings={isUpdatingSettings}
