@@ -1,0 +1,508 @@
+Sourabh@9087
+
+
+
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Loader2, Sun, Moon } from "lucide-react";
+import { toast, Toaster } from "sonner";
+import { motion } from "framer-motion";
+import { z } from "zod";
+
+// Shared Types
+import { EventData, GuestData } from "./dashboard/types";
+
+// Broken down components
+import Sidebar from "./dashboard/sidebar";
+import OverviewTab from "./dashboard/overview-tab";
+import InvitationsTab from "./dashboard/invitations-tab";
+import GuestsTab from "./dashboard/guests-tab";
+import TemplatesTab from "./dashboard/templates-tab";
+import RemindersTab from "./dashboard/reminders-tab";
+import SettingsTab from "./dashboard/settings-tab";
+import RelationTreeTab from "./dashboard/relation-tree-tab";
+
+// Server Actions
+import {
+  createEventAction,
+  deleteEventAction,
+  addGuestAction,
+  deleteGuestAction,
+  updateEventThemeAction,
+  updateUserProfileAction,
+  saveRelationshipTreeAction,
+  getGuestsAction
+} from "@/app/actions/dashboard";
+
+interface DashboardProps {
+  initialEvents: EventData[];
+  initialGuests: GuestData[];
+  activeTab: string;
+}
+
+// ---------------- ZOD VALIDATION SCHEMAS ----------------
+const eventSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  type: z.enum([
+    "wedding",
+    "birthday",
+    "engagement",
+    "baby_shower",
+    "office_party",
+    "family_reunion",
+    "farewell_dinner",
+    "anniversary_gala"
+  ]),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), "Please choose a valid date"),
+  venue: z.string().min(5, "Venue location must be at least 5 characters"),
+  description: z.string().optional(),
+  theme: z.string().optional()
+});
+
+const guestSchema = z.object({
+  name: z.string().min(2, "Guest name must be at least 2 characters"),
+  phone: z.string().min(8, "Phone number must be at least 8 digits"),
+  relation: z.enum(["family", "friend", "office"]),
+  attendance: z.enum(["yes", "no", "pending"]),
+  guestCount: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) > 0, "Guest count must be positive"),
+  side: z.string()
+});
+
+export function DashboardOverview({ initialEvents, initialGuests, activeTab: serverTab }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState(serverTab || "overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [mounted, setMounted] = useState(false);
+
+  // Core Data States
+  const [eventsList, setEventsList] = useState<EventData[]>(initialEvents);
+  const [guestsList, setGuestsList] = useState<GuestData[]>(initialGuests);
+  const [activeEvent, setActiveEvent] = useState<EventData | null>(initialEvents[0] || null);
+
+  // Settings states
+  const [profileName, setProfileName] = useState("Arjun Kumar");
+  const [profilePlan, setProfilePlan] = useState("free");
+
+  // Loading States
+  const [isSubmittingEvent, setIsSubmittingEvent] = useState(false);
+  const [isSubmittingGuest, setIsSubmittingGuest] = useState(false);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("kinvite-theme") as "light" | "dark";
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      setTheme("dark");
+    }
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("kinvite-theme", nextTheme);
+  };
+
+  const handleTabChange = (tabName: string) => {
+    setActiveTab(tabName);
+    window.history.pushState(null, "", `/dashboard?tab=${tabName}`);
+  };
+  
+  useEffect(() => {
+    if (serverTab) {
+      setActiveTab(serverTab);
+    }
+  }, [serverTab]);
+
+  // Real-time synchronization background polling (every 8 seconds)
+  const syncGuestsList = useCallback(async (silent = false) => {
+    if (!activeEvent) return;
+    try {
+      const response = await getGuestsAction(activeEvent.id);
+      if (response.success && response.guests) {
+        setGuestsList((prev) => {
+          const others = prev.filter((g) => g.eventId !== activeEvent.id);
+          return [...others, ...response.guests];
+        });
+      }
+    } catch (err) {
+      console.error("Failed to sync guest registry:", err);
+    }
+  }, [activeEvent]);
+
+  useEffect(() => {
+    if (!activeEvent) return;
+    syncGuestsList(true);
+    const interval = setInterval(() => {
+      syncGuestsList(true);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [activeEvent, syncGuestsList]);
+
+  // 1. CREATE EVENT
+  const handleCreateEvent = async (data: {
+    title: string;
+    type: string;
+    date: string;
+    venue: string;
+    description: string;
+    theme: string;
+  }) => {
+    const validation = eventSchema.safeParse(data);
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
+    setIsSubmittingEvent(true);
+    try {
+      const response = await createEventAction(data);
+
+      if (response.success && response.eventId) {
+        toast.success("Event created successfully!");
+        
+        const newEvt: EventData = {
+          id: response.eventId,
+          userId: activeEvent?.userId || "user-id",
+          title: data.title,
+          slug: response.slug || "new-event",
+          type: data.type,
+          date: new Date(data.date),
+          venue: data.venue,
+          coverImage: "/wedding_hero.png",
+          theme: data.theme,
+          description: data.description,
+          relationshipTree: null
+        };
+
+        setEventsList([newEvt, ...eventsList]);
+        setActiveEvent(newEvt);
+      } else {
+        toast.error(response.error || "Failed to create event.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsSubmittingEvent(false);
+    }
+  };
+
+  // 2. DELETE EVENT
+  const handleDeleteEvent = async (eventId: string) => {
+    const confirm = window.confirm("Are you absolutely sure you want to delete this event? This will permanently remove all guest lists and relationship trees associated with it.");
+    if (!confirm) return;
+
+    try {
+      const response = await deleteEventAction(eventId);
+      if (response.success) {
+        toast.success("Event deleted successfully.");
+        const updated = eventsList.filter(e => e.id !== eventId);
+        setEventsList(updated);
+        setActiveEvent(updated[0] || null);
+      } else {
+        toast.error(response.error || "Failed to delete event.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    }
+  };
+
+  // 3. ADD GUEST
+  const handleAddGuest = async (data: {
+    name: string;
+    phone: string;
+    relation: string;
+    attendance: string;
+    guestCount: string;
+    side: string;
+  }) => {
+    if (!activeEvent) {
+      toast.error("Please select an active event first.");
+      return;
+    }
+
+    const validation = guestSchema.safeParse(data);
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
+    setIsSubmittingGuest(true);
+    try {
+      const response = await addGuestAction({
+        eventId: activeEvent.id,
+        name: data.name,
+        phone: data.phone,
+        relation: data.relation as "family" | "friend" | "office",
+        attendance: data.attendance as "yes" | "no" | "pending",
+        guestCount: data.guestCount,
+        side: data.side
+      });
+
+      if (response.success && response.guestId) {
+        toast.success("Guest added to registry.");
+        const newGuest: GuestData = {
+          id: response.guestId,
+          eventId: activeEvent.id,
+          name: data.name,
+          phone: data.phone,
+          relation: data.relation,
+          attendance: data.attendance,
+          guestCount: data.guestCount,
+          side: data.side,
+          createdAt: new Date()
+        };
+        setGuestsList([newGuest, ...guestsList]);
+      } else {
+        toast.error(response.error || "Failed to add guest.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsSubmittingGuest(false);
+    }
+  };
+
+  // 4. DELETE GUEST
+  const handleDeleteGuest = async (guestId: string) => {
+    if (!activeEvent) return;
+    try {
+      const response = await deleteGuestAction(guestId, activeEvent.id);
+      if (response.success) {
+        toast.success("Guest removed from registry.");
+        setGuestsList(guestsList.filter(g => g.id !== guestId));
+      } else {
+        toast.error(response.error || "Failed to remove guest.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    }
+  };
+
+  // 5. UPDATE EVENT TEMPLATE
+  const handleSelectTemplate = async (themeName: string) => {
+    if (!activeEvent) {
+      toast.error("No active event selected.");
+      return;
+    }
+
+    try {
+      const response = await updateEventThemeAction(activeEvent.id, themeName);
+      if (response.success) {
+        toast.success(`Template successfully updated!`);
+        setActiveEvent({ ...activeEvent, theme: themeName });
+        setEventsList(eventsList.map(e => e.id === activeEvent.id ? { ...e, theme: themeName } : e));
+      } else {
+        toast.error(response.error || "Failed to change template.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    }
+  };
+
+  // 6. UPDATE PROFILE SETTINGS
+  const handleUpdateSettings = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    bio: string;
+    location: string;
+  }) => {
+    const combinedName = `${data.firstName} ${data.lastName}`.trim();
+    
+    setIsUpdatingSettings(true);
+    try {
+      const response = await updateUserProfileAction(combinedName, profilePlan as "free" | "pro");
+      if (response.success) {
+        setProfileName(combinedName);
+        toast.success("Profile status successfully updated!");
+      } else {
+        toast.error(response.error || "Failed to update settings.");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsUpdatingSettings(false);
+    }
+  };
+
+  // 7. SAVE RELATIONSHIP TREE
+  const handleSaveTree = async (treeJson: string): Promise<boolean> => {
+    if (!activeEvent) return false;
+    try {
+      const response = await saveRelationshipTreeAction(activeEvent.id, treeJson);
+      if (response.success) {
+        setActiveEvent({ ...activeEvent, relationshipTree: treeJson });
+        setEventsList(eventsList.map(e => e.id === activeEvent.id ? { ...e, relationshipTree: treeJson } : e));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-50 font-semibold">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+      </div>
+    );
+  }
+
+  // --- Theme Style Mappings ---
+  const pageBg = theme === "dark" ? "bg-neutral-950 text-neutral-50" : "bg-zinc-50 text-neutral-900";
+  const headerBg = theme === "dark" ? "bg-neutral-900/90 border-white/10 text-neutral-50" : "bg-white border-neutral-200 text-neutral-955 shadow-sm";
+  const titleCol = theme === "dark" ? "text-white" : "text-neutral-900";
+
+  return (
+    <div className={`min-h-screen flex ${pageBg} font-sans relative w-full overflow-hidden transition-colors duration-500`}>
+      <Toaster position="top-right" richColors />
+
+      {/* MOBILE SIDEBAR DRAWER BACKDROP */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm md:hidden transition-all duration-300"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* 1. LEFT SIDEBAR */}
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        theme={theme}
+        profileName={profileName}
+        profilePlan={profilePlan}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
+
+      {/* 2. MAIN CONTAINER */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto w-full">
+        {/* HEADER BAR */}
+        <header className={`border-b border-solid ${headerBg} px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-all duration-300 w-full`}>
+          <div className="flex items-center gap-3">
+            <button
+              className={`md:hidden cursor-pointer mr-2 p-1 ${theme === "dark" ? "text-zinc-300 hover:text-white" : "text-neutral-600 hover:text-neutral-955"}`}
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <svg className="w-6 h-6 fill-none stroke-current" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className={`text-2xl font-bold tracking-tight capitalize ${titleCol}`}>
+              {activeTab === "overview" ? "Dashboard" : 
+               activeTab === "events" ? "My Invitations" :
+               activeTab === "guests" ? "Guests" :
+               activeTab === "templates" ? "Templates" :
+               activeTab === "reminders" ? "Reminders" : 
+               activeTab === "tree" ? "Tree Map" : "Settings"}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Sun/Moon Toggle in Header */}
+            <motion.button
+              onClick={toggleTheme}
+              whileTap={{ scale: 0.9 }}
+              className={`p-2 rounded-lg border border-solid transition-colors duration-300 cursor-pointer ${
+                theme === "dark" ? "border-white/10 text-neutral-50 hover:bg-white/5" : "border-neutral-200 text-neutral-900 hover:bg-black/5"
+              }`}
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4 text-amber-400" />
+              ) : (
+                <Moon className="size-4 text-neutral-800" />
+              )}
+            </motion.button>
+          </div>
+        </header>
+
+        {/* WORKSPACE CONTENT AREA */}
+        <main className="flex-1 px-4 sm:px-6 py-6 w-full max-w-7xl mx-auto space-y-8 text-left">
+
+          {/* TAB 1: DASHBOARD OVERVIEW */}
+          {activeTab === "overview" && (
+            <OverviewTab
+              eventsList={eventsList}
+              guestsList={guestsList}
+              theme={theme}
+              setActiveEvent={setActiveEvent}
+              onTabChange={handleTabChange}
+              onDeleteEvent={handleDeleteEvent}
+            />
+          )}
+
+          {/* TAB 2: MY INVITATIONS */}
+          {activeTab === "events" && (
+            <InvitationsTab
+              eventsList={eventsList}
+              guestsList={guestsList}
+              theme={theme}
+              onDeleteEvent={handleDeleteEvent}
+              onCreateEvent={handleCreateEvent}
+              setActiveEvent={setActiveEvent}
+              onTabChange={handleTabChange}
+              isSubmittingEvent={isSubmittingEvent}
+            />
+          )}
+
+          {/* TAB 3: GUESTS ROSTER */}
+          {activeTab === "guests" && (
+            <GuestsTab
+              eventsList={eventsList}
+              guestsList={guestsList}
+              theme={theme}
+              activeEvent={activeEvent}
+              setActiveEvent={setActiveEvent}
+              onDeleteGuest={handleDeleteGuest}
+              onAddGuest={handleAddGuest}
+              isSubmittingGuest={isSubmittingGuest}
+            />
+          )}
+
+          {/* TAB 4: TEMPLATES */}
+          {activeTab === "templates" && (
+            <TemplatesTab
+              activeEvent={activeEvent}
+              theme={theme}
+              onSelectTemplate={handleSelectTemplate}
+            />
+          )}
+
+          {/* TAB 5: REMINDERS */}
+          {activeTab === "reminders" && (
+            <RemindersTab
+              theme={theme}
+            />
+          )}
+
+          {/* TAB 6: SETTINGS */}
+          {activeTab === "settings" && (
+            <SettingsTab
+              theme={theme}
+              onUpdateSettings={handleUpdateSettings}
+              isUpdatingSettings={isUpdatingSettings}
+            />
+          )}
+
+          {/* TAB 7: RELATIONSHIP TREE BUILDER */}
+          {activeTab === "tree" && activeEvent && (
+            <RelationTreeTab
+              activeEvent={activeEvent}
+              guestsList={guestsList}
+              theme={theme}
+              onSaveTree={handleSaveTree}
+            />
+          )}
+
+        </main>
+      </div>
+    </div>
+  );
+}
