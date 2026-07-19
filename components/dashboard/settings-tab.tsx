@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl || "https://placeholder.supabase.co", supabaseKey || "placeholder");
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const isValidUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://");
+const supabaseUrl = isValidUrl ? rawUrl : "https://bojrzupqvenjmipuzanq.supabase.co";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface SettingsTabProps {
   theme: "light" | "dark";
