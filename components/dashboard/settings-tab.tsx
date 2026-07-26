@@ -15,6 +15,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface SettingsTabProps {
   theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
+  accentColor: string;
+  setAccentColor: (color: string) => void;
   currentUser: any;
   onUpdateSettings: (data: {
     firstName: string;
@@ -30,6 +33,9 @@ interface SettingsTabProps {
 
 export default function SettingsTab({
   theme,
+  setTheme,
+  accentColor,
+  setAccentColor,
   currentUser,
   onUpdateSettings,
   isUpdatingSettings,
@@ -60,9 +66,6 @@ export default function SettingsTab({
   const [notifyComment, setNotifyComment] = useState(true);
   const [notifyReminders, setNotifyReminders] = useState(true);
   const [notifyMarketing, setNotifyMarketing] = useState(false);
-
-  // Appearance States
-  const [accentColor, setAccentColor] = useState("amber");
 
   // Integrations States
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(true);
