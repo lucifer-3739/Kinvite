@@ -452,11 +452,23 @@ export default function HomeLandingPage() {
           <span className="text-amber-500">•</span>
           <span>Automated text notifications</span>
           <span className="text-amber-500">•</span>
+
           <span>Digital wedding layouts</span>
           <span className="text-amber-500">•</span>
           <span>Bespoke milestone customizers</span>
           <span className="text-amber-500">•</span>
           <span>Interactive relation trees</span>
+          <span className="text-amber-500">•</span>
+          <span>Automated text notifications</span>
+          <span className="text-amber-500">•</span>
+
+          <span>Digital wedding layouts</span>
+          <span className="text-amber-500">•</span>
+          <span>Bespoke milestone customizers</span>
+          <span className="text-amber-500">•</span>
+          <span>Interactive relation trees</span>
+          <span className="text-amber-500">•</span>
+          <span>Automated text notifications</span>
         </div>
       </section>
 

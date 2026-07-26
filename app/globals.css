@@ -47,6 +47,32 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-marquee: marquee 20s linear infinite;
+  --animate-infinite-loading: infinite-loading 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-33.33%);
+    }
+  }
+
+  @keyframes infinite-loading {
+    0% {
+      left: -50%;
+      width: 30%;
+    }
+    50% {
+      width: 60%;
+    }
+    100% {
+      left: 110%;
+      width: 30%;
+    }
+  }
 }
 
 :root {
