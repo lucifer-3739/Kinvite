@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { KinviteLogo } from "@/components/KinviteLogo";
 
 export default function HomeLandingPage() {
   const router = useRouter();
@@ -183,12 +184,7 @@ export default function HomeLandingPage() {
       {/* 1. FLOATING NAV */}
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-6">
         <header className="w-full h-14 rounded-full border border-solid border-white/10 bg-neutral-950/80 backdrop-blur-xl px-6 flex justify-between items-center transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-white text-neutral-950 flex justify-center items-center font-outfit font-extrabold text-sm">
-              K
-            </div>
-            <span className="font-outfit font-bold tracking-tight text-sm text-white">Kinvite</span>
-          </div>
+          <KinviteLogo className="h-8 w-auto" showText={true} />
 
           <nav className="hidden md:flex items-center gap-8 font-semibold text-[11px] uppercase tracking-wider text-zinc-400">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
@@ -1315,12 +1311,7 @@ export default function HomeLandingPage() {
       <footer className="border-t border-solid border-white/5 bg-neutral-950 w-full py-12 z-10">
         <div className="max-w-[1140px] flex flex-col sm:flex-row mx-auto px-6 md:px-8 justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-wider text-zinc-650">
           
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-white text-neutral-950 flex items-center justify-center font-outfit font-extrabold text-xs">
-              K
-            </div>
-            <span className="font-outfit font-bold tracking-tight text-white normal-case">Kinvite</span>
-          </div>
+          <KinviteLogo className="h-8 w-auto" showText={true} />
 
           <nav className="flex gap-8 text-zinc-550">
             <a href="#" className="hover:text-amber-500 transition-colors">Privacy</a>

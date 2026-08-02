@@ -1,4 +1,5 @@
 import React from "react";
+import { KinviteLogo } from "@/components/KinviteLogo";
 
 export default function Loading() {
   return (
@@ -11,10 +12,10 @@ export default function Loading() {
 
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Breathing Logo Wrapper */}
-        <div className="relative size-16 rounded-full bg-white text-neutral-950 flex items-center justify-center font-outfit font-extrabold text-2xl shadow-2xl animate-pulse">
-          K
+        <div className="relative animate-pulse flex justify-center items-center">
+          <KinviteLogo className="size-20" showText={false} />
           {/* Subtle outer rings */}
-          <div className="absolute -inset-2 rounded-full border border-solid border-white/5 animate-ping opacity-25" />
+          <div className="absolute -inset-4 rounded-full border border-solid border-white/5 animate-ping opacity-25 pointer-events-none" />
         </div>
 
         {/* Text and progress indicators */}
