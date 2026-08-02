@@ -154,6 +154,12 @@ export default function HomeLandingPage() {
         return "bg-gradient-to-b from-purple-950/40 via-neutral-950 to-neutral-950";
       case "Classic Charcoal":
         return "bg-gradient-to-b from-zinc-900 to-neutral-950";
+      case "Forest Emerald":
+        return "bg-gradient-to-b from-emerald-950/40 via-neutral-950 to-neutral-950";
+      case "Sapphire Blue":
+        return "bg-gradient-to-b from-blue-950/40 via-neutral-950 to-neutral-950";
+      case "Onyx Velvet":
+        return "bg-gradient-to-b from-zinc-950 via-neutral-950 to-neutral-950";
       case "Sunset Gold":
       default:
         return "bg-gradient-to-b from-amber-950/20 via-neutral-950 to-neutral-950";
@@ -365,7 +371,14 @@ export default function HomeLandingPage() {
                     <div className="space-y-1.5">
                       <label className="text-zinc-500 block">Background Style</label>
                       <div className="grid grid-cols-3 gap-1.5">
-                        {["Sunset Gold", "Classic Charcoal", "Midnight Rose"].map((st) => (
+                        {[
+                          "Sunset Gold",
+                          "Classic Charcoal",
+                          "Midnight Rose",
+                          "Forest Emerald",
+                          "Sapphire Blue",
+                          "Onyx Velvet"
+                        ].map((st) => (
                           <button
                             key={st}
                             onClick={() => setMockTheme(st)}
