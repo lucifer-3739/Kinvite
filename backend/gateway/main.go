@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -81,10 +83,46 @@ func main() {
 	// CORS wrapper
 	handler := corsMiddleware(mux)
 
-	log.Printf("Starting hybrid Go gateway on port %s...", port)
-	if err := http.ListenAndServe(":"+port, handler); err != nil {
-		log.Fatalf("Server failed: %v", err)
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: handler,
 	}
+
+	// Channel to listen for OS signals
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Starting hybrid Go gateway on port %s...", port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server ListenAndServe failed: %v", err)
+		}
+	}()
+
+	// Wait for termination signal
+	<-stop
+	log.Println("Shutting down Go gateway server gracefully...")
+
+	// Grace period timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("Server forced shutdown error: %v", err)
+	}
+
+	// Close Redis connections
+	redisMutex.Lock()
+	if redisClient != nil {
+		if err := redisClient.Close(); err != nil {
+			log.Printf("Failed to close Redis connection: %v", err)
+		} else {
+			log.Println("Redis connection closed successfully.")
+		}
+	}
+	redisMutex.Unlock()
+
+	log.Println("Go gateway server exited.")
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
