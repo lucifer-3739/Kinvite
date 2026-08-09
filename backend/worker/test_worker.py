@@ -1,23 +1,39 @@
-import json
-from main import process_task
+from fastapi.testclient import TestClient
+from main import app
 
-def test_process_task_valid():
+client = TestClient(app)
+
+def test_read_root():
+    response = client.get("/")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["service"] == "kinvite-reminders-worker"
+    assert "metrics" in data
+
+def test_trigger_manual_reminder_valid():
     payload = {
-        "task": "send_reminder",
         "guest": "Grandma",
         "phone": "+1999999999",
         "message": "We hope to see you at the banquet!"
     }
-    payload_str = json.dumps(payload)
-    assert process_task(payload_str) is True
+    response = client.post("/api/reminders/process", json=payload)
+    assert response.status_code == 202
+    data = response.json()
+    assert data["status"] == "processed"
+    assert data["guest"] == "Grandma"
 
-def test_process_task_missing_fields():
+def test_trigger_manual_reminder_invalid_phone():
     payload = {
-        "task": "send_reminder",
+        "guest": "Grandma",
+        "phone": "12", # too short (Pydantic validation should block)
+        "message": "Valid message"
+    }
+    response = client.post("/api/reminders/process", json=payload)
+    assert response.status_code == 422 # Unprocessable Entity
+
+def test_trigger_manual_reminder_missing_fields():
+    payload = {
         "guest": "Grandma"
     }
-    payload_str = json.dumps(payload)
-    assert process_task(payload_str) is False
-
-def test_process_task_invalid_json():
-    assert process_task("{invalid_json_string}") is False
+    response = client.post("/api/reminders/process", json=payload)
+    assert response.status_code == 422

@@ -6,6 +6,7 @@ services:
     container_name: kinvite-redis-queue
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --maxclients 20000
     restart: always
 
   gateway:
@@ -13,11 +14,12 @@ services:
       context: ./gateway
       dockerfile: Dockerfile
     container_name: kinvite-go-gateway
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080" # Exposed internally only, no host port mapping for security
     environment:
       - REDIS_ADDR=redis:6379
       - PORT=8080
+      - JWT_SECRET=kinvite-super-secure-production-key-change-me
     depends_on:
       - redis
     restart: always
@@ -26,9 +28,21 @@ services:
     build:
       context: ./worker
       dockerfile: Dockerfile
-    container_name: kinvite-python-worker
+    container_name: kinvite-fastapi-worker
     environment:
       - REDIS_ADDR=redis:6379
+      - PORT=8000
     depends_on:
       - redis
+    restart: always
+
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: kinvite-nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - gateway
     restart: always
