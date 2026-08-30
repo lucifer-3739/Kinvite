@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Heart, Calendar, MapPin, Sparkles, Clock, Check, X, 
-  Share2, Copy, Gem, Utensils, Music, GlassWater, ChevronRight, MessageSquareHeart
+  Briefcase, Calendar, MapPin, Sparkles, Clock, Check, X, 
+  Share2, Copy, Award, Utensils, Music, GlassWater, ChevronRight, ShieldCheck, Building2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createRsvpAction } from "@/app/actions/rsvp";
-import { COLOR_COMBOS, COLOR_COMBOS_LIST, getColorCombo, ColorCombo } from "./color-palettes";
+import { COLOR_COMBOS, COLOR_COMBOS_LIST, getColorCombo, ColorCombo } from "../color-palettes";
 
 interface EventData {
   id: string;
@@ -37,13 +37,13 @@ interface GuestData {
   side: string | null;
 }
 
-interface Engagement01Props {
+interface Corporate01Props {
   event: EventData;
   initialGuests: GuestData[];
   defaultColorCombo?: string;
 }
 
-export default function Engagement01({ event, initialGuests, defaultColorCombo }: Engagement01Props) {
+export default function Corporate01({ event, initialGuests, defaultColorCombo }: Corporate01Props) {
   const getInitialCombo = () => {
     if (defaultColorCombo && COLOR_COMBOS[defaultColorCombo]) return defaultColorCombo;
     if (event.coverImage) {
@@ -56,7 +56,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
         // fallback
       }
     }
-    return "burgundy_elegance"; // Romantic wine/blush default for engagement
+    return "midnight_luxe"; // Executive Midnight Luxe default
   };
 
   const [activeComboKey, setActiveComboKey] = useState<string>(getInitialCombo());
@@ -65,9 +65,9 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
   // RSVP Form State
   const [rsvpName, setRsvpName] = useState("");
   const [rsvpPhone, setRsvpPhone] = useState("");
-  const [rsvpGuests, setRsvpGuests] = useState("1");
-  const [rsvpSide, setRsvpSide] = useState("bride_side");
-  const [rsvpWish, setRsvpWish] = useState("");
+  const [rsvpDept, setRsvpDept] = useState("Engineering");
+  const [rsvpPlusOne, setRsvpPlusOne] = useState("0");
+  const [rsvpDiet, setRsvpDiet] = useState("");
   const [rsvpChoice, setRsvpChoice] = useState<"yes" | "no" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -101,7 +101,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
       try {
         await navigator.clipboard.writeText(window.location.href);
         setCopied(true);
-        toast.success("Engagement invite link copied to clipboard!");
+        toast.success("Office party invite link copied to clipboard!");
         setTimeout(() => setCopied(false), 2500);
       } catch {
         toast.error("Failed to copy link.");
@@ -112,7 +112,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
   const handleRsvpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rsvpChoice) {
-      toast.error("Please select your attendance status.");
+      toast.error("Please select whether you will attend the event.");
       return;
     }
     if (!rsvpName.trim()) {
@@ -120,24 +120,25 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
       return;
     }
     if (!rsvpPhone.trim() || rsvpPhone.trim().length < 8) {
-      toast.error("Please enter a valid phone number (at least 8 digits).");
+      toast.error("Please enter a valid phone or employee contact number.");
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const totalGuests = String(1 + parseInt(rsvpPlusOne || "0", 10));
       const result = await createRsvpAction({
         eventId: event.id,
         name: rsvpName,
         phone: rsvpPhone,
         attendance: rsvpChoice,
-        guestCount: rsvpGuests,
-        relation: rsvpWish ? `Wishes: ${rsvpWish}` : "Guest",
-        side: rsvpSide
+        guestCount: totalGuests,
+        relation: `Dept: ${rsvpDept}${rsvpDiet ? ` | Diet: ${rsvpDiet}` : ""}`,
+        side: "colleague"
       });
       if (result.success) {
         setIsSubmitted(true);
-        toast.success(rsvpChoice === "yes" ? "We are thrilled to celebrate our engagement with you!" : "Thank you for letting us know.");
+        toast.success(rsvpChoice === "yes" ? "RSVP confirmed! We look forward to seeing you at the gala!" : "Thank you for letting us know.");
       } else {
         toast.error(result.error || "Failed to submit RSVP.");
       }
@@ -165,7 +166,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
         }}
       >
         <div className="flex items-center gap-2">
-          <Gem className="size-4" style={{ color: combo.c3 }} />
+          <Building2 className="size-4" style={{ color: combo.c3 }} />
           <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: combo.c4 }}>
             Theme: <span style={{ color: combo.c3 }}>{combo.name}</span>
           </span>
@@ -202,10 +203,10 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
       {/* 2. Hero Section */}
       <main className="max-w-xl mx-auto px-4 pt-10 pb-6 text-center space-y-8">
         
-        {/* Ring & Love Badge */}
+        {/* Corporate / Gala Badge */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest shadow-md"
           style={{
             backgroundColor: `${combo.c2}35`,
@@ -213,23 +214,23 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
             color: combo.c4
           }}
         >
-          <Gem className="size-3.5" style={{ color: combo.c3 }} />
-          <span>Save the Date &bull; Engagement Soir&eacute;e</span>
+          <Briefcase className="size-3.5" style={{ color: combo.c3 }} />
+          <span>Annual Gala &bull; Corporate Celebration</span>
         </motion.div>
 
-        {/* Couple Names / Title */}
+        {/* Title & Description */}
         <div className="space-y-3">
           <h1 
             className="text-4xl sm:text-5xl font-extrabold tracking-tight font-outfit"
             style={{ color: combo.c4 }}
           >
-            {event.title || "Together With Their Families"}
+            {event.title || "Annual Innovation Gala & Office Soir\u00e9e"}
           </h1>
           <p 
             className="text-sm sm:text-base font-medium max-w-md mx-auto leading-relaxed"
             style={{ color: `${combo.c4}CC` }}
           >
-            {event.description || "Joyfully invite you to celebrate their engagement ceremony and an evening of love, laughter, and champagne."}
+            {event.description || "Join team members, leadership, and partners as we celebrate our collective achievements, recognize excellence, and toast to the future."}
           </p>
         </div>
 
@@ -242,7 +243,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
           }}
         >
           <span className="text-[10px] uppercase font-extrabold tracking-[0.25em] block mb-4" style={{ color: combo.c3 }}>
-            Celebration Countdown
+            Event Countdown
           </span>
           <div className="grid grid-cols-4 gap-3">
             {[
@@ -316,26 +317,26 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
             </div>
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-wider block" style={{ color: combo.c3 }}>
-                Venue
+                Where
               </span>
               <p className="font-bold text-sm mt-0.5" style={{ color: combo.c4 }}>
-                {event.venue || "The Glasshouse Pavilion"}
+                {event.venue || "Grand Horizon Hall & Sky Lounge"}
               </p>
               <a 
-                href={`https://maps.google.com/?q=${encodeURIComponent(event.venue || "Engagement Venue")}`}
+                href={`https://maps.google.com/?q=${encodeURIComponent(event.venue || "Corporate Venue")}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs font-bold mt-1 inline-flex items-center gap-1 hover:underline"
                 style={{ color: combo.c3 }}
               >
-                <span>View on Map</span>
+                <span>Maps & Parking Info</span>
                 <ChevronRight className="size-3" />
               </a>
             </div>
           </div>
         </div>
 
-        {/* 5. Engagement Itinerary */}
+        {/* 5. Gala Agenda */}
         <div 
           className="rounded-3xl p-6 border text-left space-y-4"
           style={{
@@ -344,18 +345,18 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
           }}
         >
           <div className="flex items-center gap-2">
-            <Gem className="size-4" style={{ color: combo.c3 }} />
+            <Award className="size-4" style={{ color: combo.c3 }} />
             <h3 className="font-bold text-sm uppercase tracking-wider" style={{ color: combo.c4 }}>
-              Order of Events
+              Program Agenda
             </h3>
           </div>
 
           <div className="space-y-3 pt-2">
             {[
-              { time: "5:30 PM", title: "Welcome Drinks & Hors D'oeuvres", icon: GlassWater },
-              { time: "6:30 PM", title: "Ring Exchange & Blessing Ceremony", icon: Gem },
-              { time: "7:15 PM", title: "Champagne Toast & Family Speeches", icon: MessageSquareHeart },
-              { time: "8:00 PM", title: "Gala Dinner & Live Music Celebration", icon: Utensils }
+              { time: "5:00 PM", title: "Registration, Networking & Signature Cocktails", icon: GlassWater },
+              { time: "6:15 PM", title: "Executive Keynote & Team Recognition Awards", icon: Award },
+              { time: "7:30 PM", title: "Seated Gourmet Dinner & Wine Pairing", icon: Utensils },
+              { time: "9:00 PM", title: "Live Band, DJ, Open Bar & Celebration", icon: Music }
             ].map((item, idx) => (
               <div 
                 key={idx}
@@ -384,7 +385,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
           </div>
         </div>
 
-        {/* 6. Dress Code Notice */}
+        {/* 6. Security & Dress Code Guidelines */}
         <div 
           className="p-5 rounded-2xl border text-center space-y-1.5"
           style={{
@@ -392,12 +393,12 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
             borderColor: `${combo.c2}30`
           }}
         >
-          <Sparkles className="size-4 mx-auto" style={{ color: combo.c3 }} />
+          <ShieldCheck className="size-4 mx-auto" style={{ color: combo.c3 }} />
           <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: combo.c4 }}>
-            Attire & Dress Code
+            Attire & Check-In
           </h4>
           <p className="text-xs font-medium" style={{ color: `${combo.c4}CC` }}>
-            Cocktail &bull; Semi-Formal / Elegant Evening Attire
+            Cocktail / Business Formal &bull; Digital Badge or Guest Name required at door
           </p>
         </div>
 
@@ -415,10 +416,10 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
               RSVP
             </span>
             <h3 className="text-2xl font-extrabold font-outfit" style={{ color: combo.c4 }}>
-              Kindly Respond
+              Register Your Attendance
             </h3>
             <p className="text-xs" style={{ color: `${combo.c4}AA` }}>
-              We would be honored by your presence. Please confirm by submitting below.
+              Please confirm your registration for catering and badge clearance.
             </p>
           </div>
 
@@ -437,10 +438,10 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                 <Check className="size-6" />
               </div>
               <h4 className="font-extrabold text-base" style={{ color: combo.c4 }}>
-                RSVP Confirmed!
+                Registration Confirmed!
               </h4>
               <p className="text-xs" style={{ color: `${combo.c4}CC` }}>
-                Thank you, {rsvpName}! We cannot wait to celebrate with you.
+                Thank you, {rsvpName}! Your gala pass has been reserved.
               </p>
             </div>
           ) : (
@@ -458,7 +459,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                   }}
                 >
                   <Check className="size-4" />
-                  <span>Joyfully Accepts</span>
+                  <span>I Will Attend</span>
                 </button>
 
                 <button
@@ -472,18 +473,18 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                   }}
                 >
                   <X className="size-4" />
-                  <span>Regretfully Declines</span>
+                  <span>Unable to Attend</span>
                 </button>
               </div>
 
-              {/* Guest Full Name */}
+              {/* Employee / Guest Name */}
               <div className="space-y-1">
                 <label className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: combo.c4 }}>
                   Full Name *
                 </label>
                 <Input
                   required
-                  placeholder="e.g. Jordan Bennett"
+                  placeholder="e.g. Rachel Adams"
                   value={rsvpName}
                   onChange={(e) => setRsvpName(e.target.value)}
                   className="h-11 rounded-xl border text-sm"
@@ -495,15 +496,15 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                 />
               </div>
 
-              {/* Phone Number */}
+              {/* Phone / Employee Contact */}
               <div className="space-y-1">
                 <label className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: combo.c4 }}>
-                  Phone Number *
+                  Work Contact / Phone *
                 </label>
                 <Input
                   required
                   type="tel"
-                  placeholder="e.g. +1 555 987 6543"
+                  placeholder="e.g. +1 555 456 7890"
                   value={rsvpPhone}
                   onChange={(e) => setRsvpPhone(e.target.value)}
                   className="h-11 rounded-xl border text-sm"
@@ -515,15 +516,15 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                 />
               </div>
 
-              {/* Side & Total Guests */}
+              {/* Department & Plus-One */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: combo.c4 }}>
-                    Side / Group
+                    Department
                   </label>
                   <select
-                    value={rsvpSide}
-                    onChange={(e) => setRsvpSide(e.target.value)}
+                    value={rsvpDept}
+                    onChange={(e) => setRsvpDept(e.target.value)}
                     className="w-full h-11 rounded-xl border text-sm px-3 font-semibold focus:outline-none"
                     style={{
                       backgroundColor: combo.c1,
@@ -531,20 +532,22 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                       color: combo.c4
                     }}
                   >
-                    <option value="bride_side" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Bride's Side</option>
-                    <option value="groom_side" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Groom's Side</option>
-                    <option value="mutual_friend" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Mutual Friend</option>
-                    <option value="family" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Family</option>
+                    <option value="Engineering" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Engineering & Product</option>
+                    <option value="Design" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Design & UX</option>
+                    <option value="Marketing" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Marketing & Growth</option>
+                    <option value="Sales" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Sales & Customer Success</option>
+                    <option value="Operations" style={{ backgroundColor: combo.c1, color: combo.c4 }}>People & Operations</option>
+                    <option value="Executive" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Executive / Partner</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: combo.c4 }}>
-                    Total Guests
+                    Bringing +1 Guest?
                   </label>
                   <select
-                    value={rsvpGuests}
-                    onChange={(e) => setRsvpGuests(e.target.value)}
+                    value={rsvpPlusOne}
+                    onChange={(e) => setRsvpPlusOne(e.target.value)}
                     className="w-full h-11 rounded-xl border text-sm px-3 font-semibold focus:outline-none"
                     style={{
                       backgroundColor: combo.c1,
@@ -552,24 +555,21 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                       color: combo.c4
                     }}
                   >
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <option key={n} value={String(n)} style={{ backgroundColor: combo.c1, color: combo.c4 }}>
-                        {n} {n === 1 ? "Person" : "People"}
-                      </option>
-                    ))}
+                    <option value="0" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Just Me (0 Guests)</option>
+                    <option value="1" style={{ backgroundColor: combo.c1, color: combo.c4 }}>Yes, +1 Guest</option>
                   </select>
                 </div>
               </div>
 
-              {/* Wishes Note */}
+              {/* Dietary Requirements */}
               <div className="space-y-1">
                 <label className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: combo.c4 }}>
-                  Wishes for the Couple
+                  Dietary Preferences / Allergies
                 </label>
                 <Input
-                  placeholder="e.g. Wishing you a lifetime of love and joy!"
-                  value={rsvpWish}
-                  onChange={(e) => setRsvpWish(e.target.value)}
+                  placeholder="e.g. Gluten-Free, Halal, Kosher"
+                  value={rsvpDiet}
+                  onChange={(e) => setRsvpDiet(e.target.value)}
                   className="h-11 rounded-xl border text-sm"
                   style={{
                     backgroundColor: `${combo.c1}90`,
@@ -589,7 +589,7 @@ export default function Engagement01({ event, initialGuests, defaultColorCombo }
                   color: combo.c1
                 }}
               >
-                {isSubmitting ? "Submitting RSVP..." : "Send RSVP"}
+                {isSubmitting ? "Submitting..." : "Confirm Gala Pass"}
               </Button>
             </form>
           )}

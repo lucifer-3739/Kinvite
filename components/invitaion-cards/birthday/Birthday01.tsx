@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createRsvpAction } from "@/app/actions/rsvp";
-import { COLOR_COMBOS, COLOR_COMBOS_LIST, getColorCombo, ColorCombo } from "./color-palettes";
+import { COLOR_COMBOS, COLOR_COMBOS_LIST, getColorCombo, ColorCombo } from "../color-palettes";
 
 interface EventData {
   id: string;

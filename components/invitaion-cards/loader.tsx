@@ -1,23 +1,23 @@
 import dynamic from "next/dynamic";
 import React from "react";
 
-// Declare dynamic imports at module level
-const Wedding01 = dynamic(() => import("./Wedding01"), {
+// Declare dynamic imports from categorized directories
+const Wedding01 = dynamic(() => import("./wedding/Wedding01"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
-const Wedding02 = dynamic(() => import("./Wedding02"), {
+const Wedding02 = dynamic(() => import("./wedding/Wedding02"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
-const Wedding03 = dynamic(() => import("./Wedding03"), {
+const Wedding03 = dynamic(() => import("./wedding/Wedding03"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
-const Birthday01 = dynamic(() => import("./Birthday01"), {
+const Birthday01 = dynamic(() => import("./birthday/Birthday01"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
-const Engagement01 = dynamic(() => import("./Engagement01"), {
+const Engagement01 = dynamic(() => import("./engagement/Engagement01"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
-const Corporate01 = dynamic(() => import("./Corporate01"), {
+const Corporate01 = dynamic(() => import("./corporate/Corporate01"), {
   loading: () => <div className="p-8 text-center text-zinc-400 font-serif">Loading Invitation...</div>
 });
 
