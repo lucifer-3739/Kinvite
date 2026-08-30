@@ -51,14 +51,15 @@ export default function TemplatesTab({
   const [customBgImage, setCustomBgImage] = useState("");
   const [customTextColor, setCustomTextColor] = useState("");
 
-  // Preset Colors List
+  // Preset Colors List (6 Official Color Combinations)
   const colorPresets = [
     { name: "Default Theme", color: "", text: "" },
-    { name: "Rose Blush", color: "#2d0b13", text: "#fbcfe8" },
-    { name: "Emerald Forest", color: "#06251b", text: "#a7f3d0" },
-    { name: "Midnight Sapphire", color: "#0b1a30", text: "#bfdbfe" },
-    { name: "Classic Onyx", color: "#111111", text: "#e4e4e7" },
-    { name: "Imperial Plum", color: "#23113c", text: "#e9d5ff" }
+    { name: "Midnight Luxe", color: "#171717", text: "#F5E6C8" },
+    { name: "Sage Serenity", color: "#243B35", text: "#F1E9D2" },
+    { name: "Burgundy Elegance", color: "#4A1525", text: "#F4E6E8" },
+    { name: "Ocean Blue", color: "#0B2545", text: "#DCEAF7" },
+    { name: "Terracotta Warmth", color: "#6B2F2F", text: "#F4D6C6" },
+    { name: "Lavender Modern", color: "#302B4D", text: "#E8E4F3" }
   ];
 
   // Preset Images List
@@ -649,7 +650,7 @@ export default function TemplatesTab({
 
       {/* Category Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full scrollbar-none font-bold">
-        {["all", "wedding", "birthday", "corporate"].map((cat) => {
+        {["all", "wedding", "engagement", "birthday", "corporate"].map((cat) => {
           const isActive = templateCategoryFilter === cat;
           return (
             <button

@@ -1,7 +1,7 @@
 export interface ThemeInfo {
   id: string; // e.g. "Wedding01"
   name: string; // e.g. "Classic Wedding 01"
-  category: "wedding" | "birthday" | "corporate";
+  category: "wedding" | "birthday" | "engagement" | "corporate";
   rating: string;
   uses: string;
   bg: string; // preview card background classes
@@ -11,7 +11,37 @@ export interface ThemeInfo {
   creatorId?: string;
 }
 
+const ALL_COLOR_VARIANTS = [
+  { id: "midnight_luxe", name: "Midnight Luxe", colorBubbleClass: "bg-[#D4AF37]" },
+  { id: "sage_serenity", name: "Sage Serenity", colorBubbleClass: "bg-[#6B8E7B]" },
+  { id: "burgundy_elegance", name: "Burgundy Elegance", colorBubbleClass: "bg-[#7A2946]" },
+  { id: "ocean_blue", name: "Ocean Blue", colorBubbleClass: "bg-[#5B9BD5]" },
+  { id: "terracotta_warmth", name: "Terracotta Warmth", colorBubbleClass: "bg-[#D88C72]" },
+  { id: "lavender_modern", name: "Lavender Modern", colorBubbleClass: "bg-[#A9A1D1]" }
+];
+
 export const themesRegistry: ThemeInfo[] = [
+  // 1. WEDDING THEMES
+  {
+    id: "Wedding03",
+    name: "Royal Botanical Wedding",
+    category: "wedding",
+    rating: "5.0",
+    uses: "12.4k uses",
+    bg: "from-[#243B35]/80 to-[#171717]/90",
+    colorBubbleClass: "bg-[#6B8E7B]",
+    variants: ALL_COLOR_VARIANTS
+  },
+  {
+    id: "Wedding04",
+    name: "Midnight Luxe Nuptials",
+    category: "wedding",
+    rating: "4.9",
+    uses: "9.8k uses",
+    bg: "from-[#171717]/90 to-[#6B7280]/40",
+    colorBubbleClass: "bg-[#D4AF37]",
+    variants: ALL_COLOR_VARIANTS
+  },
   {
     id: "Wedding01",
     name: "Classic Wedding (Custom)",
@@ -21,9 +51,7 @@ export const themesRegistry: ThemeInfo[] = [
     bg: "from-amber-500/20 to-yellow-600/20",
     colorBubbleClass: "bg-white",
     creatorId: "UwtWJEEVpGz1JycsvEYfW6MNedwqU2fF",
-    variants: [
-      { id: "wedding_01", name: "Classic Light", colorBubbleClass: "bg-white" }
-    ]
+    variants: ALL_COLOR_VARIANTS
   },
   {
     id: "Wedding02",
@@ -34,94 +62,72 @@ export const themesRegistry: ThemeInfo[] = [
     bg: "from-blue-900/40 to-slate-950/40",
     colorBubbleClass: "bg-[#07111f]",
     creatorId: "UwtWJEEVpGz1JycsvEYfW6MNedwqU2fF",
-    variants: [
-      { id: "wedding_02", name: "Classic Navy/Gold", colorBubbleClass: "bg-[#07111f]" }
-    ]
+    variants: ALL_COLOR_VARIANTS
   },
+
+  // 2. ENGAGEMENT THEMES
   {
-    id: "Wedding03",
-    name: "Floral Elegance",
-    category: "wedding",
+    id: "Engagement01",
+    name: "Burgundy Elegance Engagement",
+    category: "engagement",
     rating: "4.9",
-    uses: "2.4k uses",
-    bg: "from-pink-900/40 to-rose-950/40",
-    colorBubbleClass: "bg-rose-500",
-    legacyThemeMapping: "minimal_elegant",
-    variants: [
-      { id: "floral_elegance", name: "Floral Elegance", colorBubbleClass: "bg-rose-500" },
-      { id: "golden_glow_wedding", name: "Golden Glow", colorBubbleClass: "bg-amber-500" },
-      { id: "midnight_romance", name: "Midnight Romance", colorBubbleClass: "bg-indigo-500" },
-      { id: "garden_party", name: "Garden Party", colorBubbleClass: "bg-emerald-500" }
-    ]
+    uses: "6.2k uses",
+    bg: "from-[#4A1525]/90 to-[#7A2946]/50",
+    colorBubbleClass: "bg-[#7A2946]",
+    variants: ALL_COLOR_VARIANTS
   },
   {
-    id: "Wedding04",
-    name: "Golden Glow",
-    category: "wedding",
+    id: "Engagement02",
+    name: "Terracotta Warmth Soirée",
+    category: "engagement",
     rating: "4.8",
-    uses: "3.1k uses",
-    bg: "from-amber-905/40 to-yellow-950/40",
-    colorBubbleClass: "bg-amber-500",
-    legacyThemeMapping: "royal_wedding",
-    variants: [
-      { id: "royal_gold", name: "Royal Gold", colorBubbleClass: "bg-amber-500" },
-      { id: "classic_white", name: "Classic White", colorBubbleClass: "bg-zinc-200" }
-    ]
+    uses: "4.5k uses",
+    bg: "from-[#6B2F2F]/90 to-[#A44A3F]/50",
+    colorBubbleClass: "bg-[#D88C72]",
+    variants: ALL_COLOR_VARIANTS
   },
+
+  // 3. BIRTHDAY THEMES
   {
     id: "Birthday01",
-    name: "Confetti Pop",
+    name: "Ocean Blue Milestone Bash",
     category: "birthday",
-    rating: "4.6",
-    uses: "2.7k uses",
-    bg: "from-sky-900/40 to-blue-950/40",
-    colorBubbleClass: "bg-sky-400",
-    legacyThemeMapping: "traditional_indian",
-    variants: [
-      { id: "confetti_pastel", name: "Confetti Pastel", colorBubbleClass: "bg-sky-400" },
-      { id: "bright_fun", name: "Bright Fun", colorBubbleClass: "bg-pink-500" }
-    ]
+    rating: "4.9",
+    uses: "8.7k uses",
+    bg: "from-[#0B2545]/90 to-[#134074]/50",
+    colorBubbleClass: "bg-[#5B9BD5]",
+    variants: ALL_COLOR_VARIANTS
   },
   {
     id: "Birthday02",
-    name: "Midnight Bloom",
+    name: "Lavender Modern Party",
     category: "birthday",
-    rating: "4.7",
-    uses: "1.9k uses",
-    bg: "from-indigo-900/40 to-purple-950/40",
-    colorBubbleClass: "bg-purple-500",
-    legacyThemeMapping: "modern_birthday",
-    variants: [
-      { id: "midnight_neon", name: "Midnight Neon", colorBubbleClass: "bg-purple-500" },
-      { id: "sunset_glow", name: "Sunset Glow", colorBubbleClass: "bg-orange-500" }
-    ]
+    rating: "4.8",
+    uses: "7.1k uses",
+    bg: "from-[#302B4D]/90 to-[#625B8C]/50",
+    colorBubbleClass: "bg-[#A9A1D1]",
+    variants: ALL_COLOR_VARIANTS
   },
+
+  // 4. CORPORATE & OFFICE PARTY THEMES
   {
     id: "Corporate01",
-    name: "Corporate Classic",
+    name: "Executive Innovation Gala",
     category: "corporate",
-    rating: "4.5",
-    uses: "1.5k uses",
-    bg: "from-zinc-800/40 to-zinc-950/40",
-    colorBubbleClass: "bg-blue-600",
-    legacyThemeMapping: "luxury_gold",
-    variants: [
-      { id: "exec_navy", name: "Executive Navy", colorBubbleClass: "bg-blue-600" },
-      { id: "slate_minimal", name: "Slate Minimal", colorBubbleClass: "bg-slate-500" }
-    ]
+    rating: "4.9",
+    uses: "5.3k uses",
+    bg: "from-[#171717]/90 to-[#134074]/50",
+    colorBubbleClass: "bg-[#D4AF37]",
+    variants: ALL_COLOR_VARIANTS
   },
   {
     id: "Corporate02",
-    name: "Executive Slate",
+    name: "Ocean Tech Summit Soirée",
     category: "corporate",
-    rating: "4.4",
-    uses: "1.2k uses",
-    bg: "from-neutral-800/40 to-neutral-950/40",
-    colorBubbleClass: "bg-neutral-200",
-    legacyThemeMapping: "executive_slate",
-    variants: [
-      { id: "classic_charcoal", name: "Classic Charcoal", colorBubbleClass: "bg-zinc-650" },
-      { id: "platinum_edge", name: "Platinum Edge", colorBubbleClass: "bg-neutral-200" }
-    ]
+    rating: "4.7",
+    uses: "3.9k uses",
+    bg: "from-[#0B2545]/90 to-[#5B9BD5]/40",
+    colorBubbleClass: "bg-[#5B9BD5]",
+    variants: ALL_COLOR_VARIANTS
   }
 ];

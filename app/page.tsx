@@ -55,13 +55,13 @@ export default function HomeLandingPage() {
 
   // Interactive Sandboxes states (Hero)
   const [mockEventTitle, setMockEventTitle] = useState("Emma & Nathan's Wedding");
-  const [mockAccent, setMockAccent] = useState("amber");
-  const [mockTheme, setMockTheme] = useState("Sunset Gold");
+  const [mockAccent, setMockAccent] = useState("midnight_gold");
+  const [mockTheme, setMockTheme] = useState("Midnight Luxe");
   const [mockDate, setMockDate] = useState("December 18, 2026");
   const [mockLocation, setMockLocation] = useState("The Grand Pavilion, CA");
 
   // Bento Interactive States
-  const [bentoTemplate, setBentoTemplate] = useState<"wedding" | "birthday" | "gala">("wedding");
+  const [bentoTemplate, setBentoTemplate] = useState<"wedding" | "engagement" | "birthday" | "corporate">("wedding");
   const [bentoFontWeight, setBentoFontWeight] = useState<string>("font-extrabold");
   const [bentoFontSize, setBentoFontSize] = useState<string>("text-sm");
   const [bentoActiveTab, setBentoActiveTab] = useState<string>("link");
@@ -120,50 +120,58 @@ export default function HomeLandingPage() {
     );
   }
 
-  // Helper classes for colors
+  // Helper to map color accents
   const getAccentColorClass = (accent: string) => {
     switch (accent) {
-      case "emerald":
-        return "text-emerald-400 border-emerald-500/20 bg-emerald-500/10";
-      case "indigo":
-        return "text-indigo-400 border-indigo-500/20 bg-indigo-500/10";
-      case "rose":
-        return "text-rose-400 border-rose-500/20 bg-rose-500/10";
-      case "amber":
+      case "sage_green":
+        return "text-[#B7C9B1] border-[#6B8E7B]/40 bg-[#6B8E7B]/20";
+      case "burgundy_rose":
+        return "text-[#F4E6E8] border-[#C98B9B]/40 bg-[#7A2946]/30";
+      case "ocean_blue":
+        return "text-[#DCEAF7] border-[#5B9BD5]/40 bg-[#134074]/30";
+      case "terracotta":
+        return "text-[#F4D6C6] border-[#D88C72]/40 bg-[#A44A3F]/30";
+      case "lavender":
+        return "text-[#E8E4F3] border-[#A9A1D1]/40 bg-[#625B8C]/30";
+      case "midnight_gold":
       default:
-        return "text-amber-400 border-amber-500/20 bg-amber-500/10";
+        return "text-[#F5E6C8] border-[#D4AF37]/40 bg-[#D4AF37]/20";
     }
   };
 
   const getAccentBtnClass = (accent: string) => {
     switch (accent) {
-      case "emerald":
-        return "bg-emerald-500 hover:bg-emerald-600 text-emerald-950";
-      case "indigo":
-        return "bg-indigo-500 hover:bg-indigo-600 text-white";
-      case "rose":
-        return "bg-rose-500 hover:bg-rose-600 text-white";
-      case "amber":
+      case "sage_green":
+        return "bg-[#6B8E7B] hover:bg-[#587766] text-[#F1E9D2]";
+      case "burgundy_rose":
+        return "bg-[#7A2946] hover:bg-[#66223a] text-[#F4E6E8]";
+      case "ocean_blue":
+        return "bg-[#5B9BD5] hover:bg-[#4a84b8] text-[#0B2545]";
+      case "terracotta":
+        return "bg-[#D88C72] hover:bg-[#c2765d] text-[#6B2F2F]";
+      case "lavender":
+        return "bg-[#A9A1D1] hover:bg-[#9288bd] text-[#302B4D]";
+      case "midnight_gold":
       default:
-        return "bg-amber-500 hover:bg-amber-600 text-amber-950";
+        return "bg-[#D4AF37] hover:bg-[#bf9d2e] text-[#171717]";
     }
   };
 
   const getPhoneBgClass = (styleName: string) => {
     switch (styleName) {
-      case "Midnight Rose":
-        return "bg-gradient-to-b from-purple-950/40 via-neutral-950 to-neutral-950";
-      case "Classic Charcoal":
-        return "bg-gradient-to-b from-zinc-900 to-neutral-950";
-      case "Forest Emerald":
-        return "bg-gradient-to-b from-emerald-950/40 via-neutral-950 to-neutral-950";
-      case "Sapphire Blue":
-        return "bg-gradient-to-b from-blue-950/40 via-neutral-950 to-neutral-950";
-      case "Onyx Velvet":
-        return "bg-gradient-to-b from-zinc-950 via-neutral-950 to-neutral-950";
-      case "Sunset Gold":
+      case "Sage Serenity":
+        return "bg-gradient-to-b from-[#243B35] via-[#1a2b27] to-[#121c19]";
+      case "Burgundy Elegance":
+        return "bg-gradient-to-b from-[#4A1525] via-[#350f1a] to-[#1f070e]";
+      case "Ocean Blue":
+        return "bg-gradient-to-b from-[#0B2545] via-[#091f3a] to-[#051120]";
+      case "Terracotta Warmth":
+        return "bg-gradient-to-b from-[#6B2F2F] via-[#4d2121] to-[#2c1313]";
+      case "Lavender Modern":
+        return "bg-gradient-to-b from-[#302B4D] via-[#231f38] to-[#141221]";
+      case "Midnight Luxe":
       default:
-        return "bg-gradient-to-b from-amber-950/20 via-neutral-950 to-neutral-950";
+        return "bg-gradient-to-b from-[#171717] via-[#141414] to-[#0d0d0d]";
     }
   };
 
@@ -342,49 +350,56 @@ export default function HomeLandingPage() {
                     <div className="space-y-1.5">
                       <label className="text-zinc-500 block">Accent Palette</label>
                       <div className="flex gap-2">
-                        {["amber", "emerald", "indigo", "rose"].map((accent) => (
+                        {[
+                          { id: "midnight_gold", bg: "bg-[#D4AF37]" },
+                          { id: "sage_green", bg: "bg-[#6B8E7B]" },
+                          { id: "burgundy_rose", bg: "bg-[#7A2946]" },
+                          { id: "ocean_blue", bg: "bg-[#5B9BD5]" },
+                          { id: "terracotta", bg: "bg-[#D88C72]" },
+                          { id: "lavender", bg: "bg-[#A9A1D1]" }
+                        ].map((item) => (
                           <button
-                            key={accent}
-                            onClick={() => setMockAccent(accent)}
+                            key={item.id}
+                            onClick={() => setMockAccent(item.id)}
                             className={`size-5 rounded-full border border-solid cursor-pointer transition-all flex items-center justify-center ${
-                              mockAccent === accent ? "border-white scale-110" : "border-transparent opacity-80 hover:opacity-100"
-                            } ${
-                              accent === "amber"
-                                ? "bg-amber-500"
-                                : accent === "emerald"
-                                ? "bg-emerald-500"
-                                : accent === "indigo"
-                                ? "bg-indigo-500"
-                                : "bg-rose-500"
-                            }`}
+                              mockAccent === item.id ? "border-white scale-110 shadow-sm" : "border-transparent opacity-80 hover:opacity-100"
+                            } ${item.bg}`}
                           >
-                            {mockAccent === accent && <Check className="w-3 h-3 text-black font-extrabold" />}
+                            {mockAccent === item.id && <Check className="w-3 h-3 text-black font-extrabold" />}
                           </button>
                         ))}
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-zinc-500 block">Background Style</label>
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <label className="text-zinc-500 block">Color Theme</label>
+                      <div className="grid grid-cols-2 gap-1.5">
                         {[
-                          "Sunset Gold",
-                          "Classic Charcoal",
-                          "Midnight Rose",
-                          "Forest Emerald",
-                          "Sapphire Blue",
-                          "Onyx Velvet"
+                          "Midnight Luxe",
+                          "Sage Serenity",
+                          "Burgundy Elegance",
+                          "Ocean Blue",
+                          "Terracotta Warmth",
+                          "Lavender Modern"
                         ].map((st) => (
                           <button
                             key={st}
-                            onClick={() => setMockTheme(st)}
-                            className={`py-1 rounded text-[9px] font-bold border border-solid cursor-pointer transition-all ${
+                            onClick={() => {
+                              setMockTheme(st);
+                              if (st === "Midnight Luxe") setMockAccent("midnight_gold");
+                              if (st === "Sage Serenity") setMockAccent("sage_green");
+                              if (st === "Burgundy Elegance") setMockAccent("burgundy_rose");
+                              if (st === "Ocean Blue") setMockAccent("ocean_blue");
+                              if (st === "Terracotta Warmth") setMockAccent("terracotta");
+                              if (st === "Lavender Modern") setMockAccent("lavender");
+                            }}
+                            className={`py-1 px-1.5 rounded text-[9px] font-bold border border-solid cursor-pointer transition-all text-left truncate ${
                               mockTheme === st
-                                ? "border-amber-500 bg-amber-500/10 text-amber-400"
+                                ? "border-white/40 bg-white/10 text-white font-extrabold"
                                 : "border-white/5 bg-neutral-900 text-zinc-400 hover:text-zinc-200"
                             }`}
                           >
-                            {st.split(" ")[1]}
+                            {st}
                           </button>
                         ))}
                       </div>
@@ -519,18 +534,18 @@ export default function HomeLandingPage() {
                     </p>
                   </div>
                   
-                  <div className="flex gap-2 mt-6">
-                    {["wedding", "birthday", "gala"].map((t) => (
+                  <div className="flex gap-2 mt-6 flex-wrap">
+                    {["wedding", "engagement", "birthday", "corporate"].map((t) => (
                       <button
                         key={t}
-                        onClick={() => setBentoTemplate(t as "wedding" | "birthday" | "gala")}
+                        onClick={() => setBentoTemplate(t as "wedding" | "engagement" | "birthday" | "corporate")}
                         className={`px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-wider border border-solid cursor-pointer transition-all ${
                           bentoTemplate === t
                             ? "border-amber-500 bg-amber-500/10 text-amber-400"
                             : "border-white/5 bg-neutral-900 text-zinc-400 hover:text-white"
                         }`}
                       >
-                        {t}
+                        {t === "corporate" ? "Office Party" : t}
                       </button>
                     ))}
                   </div>
@@ -549,10 +564,10 @@ export default function HomeLandingPage() {
                       Invitation
                     </span>
                     <h4 className="font-outfit font-extrabold text-sm text-white">
-                      {bentoTemplate === "wedding" ? "Emma & Nathan" : bentoTemplate === "birthday" ? "Marcus turns 30" : "Anniversary Gala"}
+                      {bentoTemplate === "wedding" ? "Emma & Nathan" : bentoTemplate === "engagement" ? "Liam & Sophia" : bentoTemplate === "birthday" ? "Marcus turns 30" : "Innovation Gala"}
                     </h4>
                     <p className="text-[8px] text-zinc-400">
-                      {bentoTemplate === "wedding" ? "December 18, 2026" : bentoTemplate === "birthday" ? "September 12, 2026" : "November 05, 2026"}
+                      {bentoTemplate === "wedding" ? "December 18, 2026" : bentoTemplate === "engagement" ? "October 24, 2026" : bentoTemplate === "birthday" ? "September 12, 2026" : "November 05, 2026"}
                     </p>
                   </div>
 
