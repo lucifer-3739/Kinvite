@@ -5,6 +5,7 @@ import {
   Heart, X, LayoutDashboard, Mail, Users, Palette, Bell, Settings 
 } from "lucide-react";
 import { LogoutButton } from "@/components/logout-button";
+import { KinviteLogo } from "@/components/KinviteLogo";
 
 interface SidebarProps {
   activeTab: string;
@@ -47,12 +48,7 @@ export default function Sidebar({
       <div className="flex flex-col flex-1 py-6 overflow-y-auto">
         {/* Brand Header */}
         <div className="px-6 mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/10">
-              <Heart className="w-4 h-4 text-neutral-950 fill-neutral-950" />
-            </div>
-            <span className={`font-heading font-bold text-lg tracking-wide uppercase ${theme === "dark" ? "text-amber-400" : "text-neutral-900"}`}>Knivite</span>
-          </div>
+          <KinviteLogo className="h-8 w-auto" showText={true} theme={theme} />
           <button
             className={`md:hidden p-1 cursor-pointer ${theme === "dark" ? "text-zinc-400 hover:text-white" : "text-neutral-500 hover:text-neutral-900"}`}
             onClick={() => setMobileMenuOpen(false)}
